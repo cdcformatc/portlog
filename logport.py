@@ -4,22 +4,30 @@ from datetime import datetime
 import struct
 import time
 
-def packet_format():
-    header_len = 1
-    num_temp = 1
-    num_accel = 3
-    num_audio = 8
+DATA_FILE_PATH = 'data/'
+DATA_FILE_EXT = '.txt'
+time_format = "{0:%Y}{0:%m}{0:%d}{0:%H}{0:%M}"
 
-    num_ints = header_len + num_temp + num_accel + num_audio 
-    num_bytes = num_ints*2
-
+def packet_format(header,temp,accel,audio):
     unp = ('<' +
-        'H' * header_len +
-        'h' * num_temp +
-        'h' * num_accel +
-        'h' * num_audio)
-    return unp, num_bytes
-
+        'H' * header +
+        'h' * temp +
+        'h' * accel +
+        'h' * audio)
+        
+    return unp, (len(unp)-1)*2
+    
+def open_files(time):
+    time_s = time_format.format(time)
+    fnacc = DATA_FILE_PATH + time_s + '_acc' + DATA_FILE_EXT
+    fnaud = DATA_FILE_PATH + time_s + '_aud' + DATA_FILE_EXT
+    fnall = DATA_FILE_PATH + time_s + '_all' + DATA_FILE_EXT
+    
+    facc = open(fnacc, "w")
+    faud = open(fnaud,"w")
+    fall = open(fnall,"w")
+    return facc,faud,fall
+    
 port = int(sys.argv[1])
 baud = int(sys.argv[2])
 ser = None
@@ -34,20 +42,15 @@ while ser==None:
 print "Connected to",ser.portstr  # check which port is used
 line = ''
 
-path = 'data'
-ext = 'txt'
-fn_pattern = "{1}/{0:%Y}{0:%m}{0:%d}{0:%H}{0:%M}_{2}.{3}"
-
 start = datetime.utcnow()
-fnacc = fn_pattern.format(start,path,'acc',ext)
-fnaud = fn_pattern.format(start,path,'aud',ext)
-fnall = fn_pattern.format(start,path,'all',ext)
-facc = open(fnacc, "w")
-faud = open(fnaud,"w")
-fall = open(fnall,"w")
-print fnacc,fnaud
+facc,faud,fall = open_files(start)
 
-unp_s, num_bytes = packet_format()
+header_len = 1
+num_temp = 1
+num_accel = 3
+num_audio = 8
+    
+unp_s, num_bytes = packet_format(header_len,num_temp,num_accel,num_audio)
 
 while 1:
     dt = datetime.utcnow()
@@ -57,14 +60,7 @@ while 1:
         facc.close()
         fall.close()
         faud.close()
-        fnacc = fn_pattern.format(start,path,'acc',ext)
-        fnaud = fn_pattern.format(start,path,'aud',ext)
-        fnall = fn_pattern.format(start,path,'all',ext)
-        facc = open(fnacc, "w")
-        faud = open(fnaud,"w")
-        fall = open(fnall,"w")
-        print fnacc,fnaud,fnall
-    
+        facc,faud,fall = open_files(start)
     
     line = ser.read(num_bytes)
     if line!="":
