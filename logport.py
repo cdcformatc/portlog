@@ -31,9 +31,9 @@ faud = open(fnaud,"w")
 fall = open(fnall,"w")
 print fnacc,fnaud
 
-num_samples = 10
-num_bytes = num_samples*2+8
-unp_s = '<Hhhh' + 'h'*num_samples
+num_audio_samples = 8
+num_bytes = num_audio_samples*2+10
+unp_s = '<Hhhhh' + 'h'*num_audio_samples
 print unp_s
 
 while 1:
@@ -57,7 +57,7 @@ while 1:
         unp = struct.unpack(unp_s, line)
         
         facc.write(','.join([str(x) for x in unp[:4]])+"\n")
-        faud.write('\n'.join([str(x) for x in unp[4:]])+"\n")
+        faud.write('\n'.join([str(x) for x in unp[5:]])+"\n")
         fall.write(','.join([str(x) for x in unp])+"\n")
         
 ser.close()             # close port
