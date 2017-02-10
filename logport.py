@@ -31,9 +31,19 @@ faud = open(fnaud,"w")
 fall = open(fnall,"w")
 print fnacc,fnaud
 
-num_audio_samples = 8
-num_bytes = num_audio_samples*2+10
-unp_s = '<Hhhhh' + 'h'*num_audio_samples
+header_len = 1
+num_temp = 1
+num_accel = 3
+num_audio = 8
+
+num_ints = header_len + num_temp + num_accel + num_audio 
+num_bytes = num_ints*2
+
+unp_s = '<' + 'H' * header_len \
+    + 'h' * num_temp \
+    + 'h' * num_accel \
+    + 'h' * num_audio
+    
 print unp_s
 
 while 1:
