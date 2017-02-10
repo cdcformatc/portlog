@@ -38,6 +38,15 @@ def open_port(port,baud):
     print "Connected to",ser.portstr  # check which port is used
     return ser
     
+def wait_untill_start(ser):
+    while 1:
+        x = ord(ser.read(1))
+        if x == 0x55:
+            y = ord(ser.read(1))
+            if y == 0xAA:
+                ser.read(num_bytes-2)
+                break
+                
 def main(port,baud):
     header_len = 1
     num_temp = 1
@@ -50,6 +59,8 @@ def main(port,baud):
     facc, faud, fall = open_files(start)
     unp_s, num_bytes = packet_format(header_len, num_temp, num_accel, num_audio)
     
+    wait_untill_start(ser)
+
     while 1:
         dt = datetime.utcnow()
         if (dt - start).total_seconds() > 60:
