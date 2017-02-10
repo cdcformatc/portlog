@@ -4,6 +4,22 @@ from datetime import datetime
 import struct
 import time
 
+def packet_format():
+    header_len = 1
+    num_temp = 1
+    num_accel = 3
+    num_audio = 8
+
+    num_ints = header_len + num_temp + num_accel + num_audio 
+    num_bytes = num_ints*2
+
+    unp = ('<' +
+        'H' * header_len +
+        'h' * num_temp +
+        'h' * num_accel +
+        'h' * num_audio)
+    return unp, num_bytes
+
 port = int(sys.argv[1])
 baud = int(sys.argv[2])
 ser = None
@@ -31,20 +47,7 @@ faud = open(fnaud,"w")
 fall = open(fnall,"w")
 print fnacc,fnaud
 
-header_len = 1
-num_temp = 1
-num_accel = 3
-num_audio = 8
-
-num_ints = header_len + num_temp + num_accel + num_audio 
-num_bytes = num_ints*2
-
-unp_s = '<' + 'H' * header_len \
-    + 'h' * num_temp \
-    + 'h' * num_accel \
-    + 'h' * num_audio
-    
-print unp_s
+unp_s, num_bytes = packet_format()
 
 while 1:
     dt = datetime.utcnow()
@@ -52,6 +55,7 @@ while 1:
     if (dt - start).total_seconds() > 60:
         start = dt
         facc.close()
+        fall.close()
         faud.close()
         fnacc = fn_pattern.format(start,path,'acc',ext)
         fnaud = fn_pattern.format(start,path,'aud',ext)
