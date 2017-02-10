@@ -7,19 +7,13 @@ import time
 DATA_FILE_PATH = 'data/'
 DATA_FILE_EXT = '.txt'
 time_format = "{0:%Y}{0:%m}{0:%d}{0:%H}{0:%M}"
-
-header_len = 1
-num_temp = 1
-num_accel = 3
-num_audio = 8
-
+    
 def packet_format(header,temp,accel,audio):
     unp = ('<' +
         'H' * header +
         'h' * temp +
         'h' * accel +
         'h' * audio)
-        
     return unp, (len(unp)-1)*2
     
 def open_files(time):
@@ -44,34 +38,40 @@ def open_port(port,baud):
     print "Connected to",ser.portstr  # check which port is used
     return ser
     
-port = int(sys.argv[1])
-baud = int(sys.argv[2])
-line = ''
-
-start = datetime.utcnow()
-ser = open_port(port,baud)
-facc,faud,fall = open_files(start)
-unp_s, num_bytes = packet_format(header_len,num_temp,num_accel,num_audio)
-
-while 1:
-    dt = datetime.utcnow()
+def main(port,baud):
+    header_len = 1
+    num_temp = 1
+    num_accel = 3
+    num_audio = 8
+    line = ''
     
-    if (dt - start).total_seconds() > 60:
-        start = dt
-        facc.close()
-        fall.close()
-        faud.close()
-        facc,faud,fall = open_files(start)
+    ser = open_port(port,baud)
+    start = datetime.utcnow()
+    facc, faud, fall = open_files(start)
+    unp_s, num_bytes = packet_format(header_len, num_temp, num_accel, num_audio)
     
-    line = ser.read(num_bytes)
-    if line!="":
-        unp = struct.unpack(unp_s, line)
-        
-        facc.write(','.join([str(x) for x in unp[:4]])+"\n")
-        faud.write('\n'.join([str(x) for x in unp[5:]])+"\n")
-        fall.write(','.join([str(x) for x in unp])+"\n")
-        
-ser.close() # close port
-facc.close()
-fall.close()
-faud.close()
+    while 1:
+        dt = datetime.utcnow()
+        if (dt - start).total_seconds() > 60:
+            start = dt
+            facc.close()
+            fall.close()
+            faud.close()
+            facc,faud,fall = open_files(start)
+            
+        line = ser.read(num_bytes)
+        if line!="":
+            unp = struct.unpack(unp_s, line)
+            facc.write(','.join([str(x) for x in unp[:4]]) + "\n")
+            faud.write('\n'.join([str(x) for x in unp[5:]]) + "\n")
+            fall.write(','.join([str(x) for x in unp]) + "\n")
+            
+    ser.close() # close port
+    facc.close()
+    fall.close()
+    faud.close()
+    
+if __name__== '__main__':
+    port = int(sys.argv[1])
+    baud = int(sys.argv[2])
+    main(port,baud)
