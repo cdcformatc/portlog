@@ -77,9 +77,15 @@ def main(port,baud):
         if line != "":
             unp = struct.unpack(unp_s, line)
             fall.write(','.join([str(x) for x in unp]) + "\n")
-            facc.write(','.join([str(x) for x in unp[:(header_len+num_accel)]]) + "\n")
-            faud.write('\n'.join([str(x) for x in unp[(header_len+num_accel+num_temp):]]) + "\n")
-            
+            if unp[0] == 0xAA55 and unp[1] == 0xAA55:
+                facc.write(','.join([str(x) for x in unp[:(header_len+num_accel)]]) + "\n")
+                faud.write('\n'.join([str(x) for x in unp[(header_len+num_accel+num_temp):]]) + "\n")
+            else:
+                fall.write("Packet Error ")
+                facc.write('0'*(header_len+num_accel)
+                faud.write('0\n'*(num_audio)
+                wait_untill_start(ser)
+                
     ser.close() # close port
     facc.close()
     fall.close()
