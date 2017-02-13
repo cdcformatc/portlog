@@ -41,11 +41,15 @@ def open_port(port,baud):
     
 def wait_untill_start(ser):
     while 1:
-        x = ord(ser.read(1))
-        if x == 0x55:
+        x = ser.read(1)
+        
+        if x == '':
+            continue
+        
+        if ord(x) == 0x55:
             y = ord(ser.read(1))
             if y == 0xAA:
-                ser.read(num_bytes-2)
+                
                 break
                 
 def main(port,baud):
@@ -61,6 +65,7 @@ def main(port,baud):
     unp_s, num_bytes = packet_format(header_len, num_temp, num_accel, num_audio)
     
     wait_untill_start(ser)
+    ser.read(num_bytes-2)
     
     while 1:
         dt = datetime.utcnow()
