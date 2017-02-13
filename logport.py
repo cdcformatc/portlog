@@ -62,7 +62,7 @@ def main(port,baud):
     unp_s, num_bytes = packet_format(header_len, num_temp, num_accel, num_audio)
     
     wait_untill_start(ser)
-    ser.read(num_bytes-4)
+    ser.read(num_bytes-(header_len*2))
     
     while 1:
         dt = datetime.utcnow()
@@ -74,11 +74,11 @@ def main(port,baud):
             facc,faud,fall = open_files(start)
             
         line = ser.read(num_bytes)
-        if line!="":
+        if line != "":
             unp = struct.unpack(unp_s, line)
-            facc.write(','.join([str(x) for x in unp[:5]]) + "\n")
-            faud.write('\n'.join([str(x) for x in unp[6:]]) + "\n")
             fall.write(','.join([str(x) for x in unp]) + "\n")
+            facc.write(','.join([str(x) for x in unp[:(header_len+num_accel)]]) + "\n")
+            faud.write('\n'.join([str(x) for x in unp[(header_len+num_accel+num_temp):]]) + "\n")
             
     ser.close() # close port
     facc.close()
