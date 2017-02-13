@@ -42,18 +42,15 @@ def open_port(port,baud):
 def wait_untill_start(ser):
     while 1:
         x = ser.read(1)
-        
         if x == '':
             continue
-        
         if ord(x) == 0x55:
-            y = ord(ser.read(1))
-            if y == 0xAA:
-                
+            y = [ord(c) for c in ser.read(3)]
+            if y[0] == 0xAA and y[1] == 0x55 and y[2] == 0xAA:
                 break
                 
 def main(port,baud):
-    header_len = 1
+    header_len = 2
     num_temp = 1
     num_accel = 3
     num_audio = 8
@@ -65,7 +62,7 @@ def main(port,baud):
     unp_s, num_bytes = packet_format(header_len, num_temp, num_accel, num_audio)
     
     wait_untill_start(ser)
-    ser.read(num_bytes-2)
+    ser.read(num_bytes-4)
     
     while 1:
         dt = datetime.utcnow()
@@ -79,8 +76,8 @@ def main(port,baud):
         line = ser.read(num_bytes)
         if line!="":
             unp = struct.unpack(unp_s, line)
-            facc.write(','.join([str(x) for x in unp[:4]]) + "\n")
-            faud.write('\n'.join([str(x) for x in unp[5:]]) + "\n")
+            facc.write(','.join([str(x) for x in unp[:5]]) + "\n")
+            faud.write('\n'.join([str(x) for x in unp[6:]]) + "\n")
             fall.write(','.join([str(x) for x in unp]) + "\n")
             
     ser.close() # close port
