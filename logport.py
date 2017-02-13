@@ -83,8 +83,8 @@ def main(pre,port,baud):
                 faud.write('\n'.join([str(x) for x in unp[(header_len+num_accel+num_temp):]]) + "\n")
             else:
                 fall.write("Packet Error ")
-                facc.write('0'*(header_len+num_accel)
-                faud.write('0\n'*(num_audio))
+                facc.write('0'*(header_len+num_accel))
+                faud.write('0'*num_audio)
                 wait_untill_start(ser)
                 
     ser.close() # close port
