@@ -94,6 +94,6 @@ def main(pre,port,baud):
     
 if __name__== '__main__':
     pre = sys.argv[1]
-    port = int(sys.argv[2])
+    port = sys.argv[2]
     baud = int(sys.argv[3])
     main(pre,port,baud)
