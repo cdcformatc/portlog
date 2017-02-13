@@ -17,11 +17,12 @@ def packet_format(header,temp,accel,audio):
         'h' * audio)
     return unp, (len(unp)-1)*2
     
-def open_files(time):
+def open_files(pre,time):
     time_s = time_format.format(time)
-    fnacc = DATA_FILE_PATH + time_s + '_acc' + DATA_FILE_EXT
-    fnaud = DATA_FILE_PATH + time_s + '_aud' + DATA_FILE_EXT
-    fnall = DATA_FILE_PATH + time_s + '_all' + DATA_FILE_EXT
+        
+    fnacc = DATA_FILE_PATH + time_s + '_' + pre + '_acc' + DATA_FILE_EXT
+    fnaud = DATA_FILE_PATH + time_s + '_' + pre + '_aud' + DATA_FILE_EXT
+    fnall = DATA_FILE_PATH + time_s + '_' + pre + '_all' + DATA_FILE_EXT
     facc = open(fnacc, "w")
     faud = open(fnaud,"w")
     fall = open(fnall,"w")
@@ -49,7 +50,7 @@ def wait_untill_start(ser):
             if y[0] == 0xAA and y[1] == 0x55 and y[2] == 0xAA:
                 break
                 
-def main(port,baud):
+def main(pre,port,baud):
     header_len = 2
     num_temp = 1
     num_accel = 3
@@ -58,7 +59,7 @@ def main(port,baud):
     
     ser = open_port(port,baud)
     start = datetime.utcnow()
-    facc, faud, fall = open_files(start)
+    facc, faud, fall = open_files(pre,start)
     unp_s, num_bytes = packet_format(header_len, num_temp, num_accel, num_audio)
     
     wait_untill_start(ser)
@@ -71,7 +72,7 @@ def main(port,baud):
             facc.close()
             fall.close()
             faud.close()
-            facc,faud,fall = open_files(start)
+            facc,faud,fall = open_files(pre,start)
             
         line = ser.read(num_bytes)
         if line != "":
@@ -83,7 +84,7 @@ def main(port,baud):
             else:
                 fall.write("Packet Error ")
                 facc.write('0'*(header_len+num_accel)
-                faud.write('0\n'*(num_audio)
+                faud.write('0\n'*(num_audio))
                 wait_untill_start(ser)
                 
     ser.close() # close port
@@ -92,6 +93,7 @@ def main(port,baud):
     faud.close()
     
 if __name__== '__main__':
-    port = int(sys.argv[1])
-    baud = int(sys.argv[2])
-    main(port,baud)
+    pre = sys.argv[1]
+    port = int(sys.argv[2])
+    baud = int(sys.argv[3])
+    main(pre,port,baud)
