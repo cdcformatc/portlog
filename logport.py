@@ -1,3 +1,4 @@
+# Copyright 2017 Xtel International Ltd.
 import serial
 import sys
 from datetime import datetime
@@ -60,7 +61,7 @@ def main(port,baud):
     unp_s, num_bytes = packet_format(header_len, num_temp, num_accel, num_audio)
     
     wait_untill_start(ser)
-
+    
     while 1:
         dt = datetime.utcnow()
         if (dt - start).total_seconds() > 60:
