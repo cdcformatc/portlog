@@ -1,4 +1,3 @@
-# Copyright 2017 Xtel International Ltd.
 import serial
 import sys
 from datetime import datetime
