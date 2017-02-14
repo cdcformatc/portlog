@@ -6,7 +6,6 @@ usage:
     python.exe logport.py name port baud
     
     arguments:
-    name   A unique name to append to output. 
-    port   Device name. eg: COM3
-    baud  baudrate such as 9600 or 460800
-    
+    name - A unique name to append to output. 
+    port - Device name such as COM3.
+    baud - Baudrate such as 9600 or 460800.
