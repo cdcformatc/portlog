@@ -51,6 +51,7 @@ def wait_untill_start(ser):
                 
 def main(pre,port,baud):
     header_len = 2
+    count_len = 1
     num_temp = 1
     num_accel = 3
     num_audio = 8
@@ -59,7 +60,7 @@ def main(pre,port,baud):
     ser = open_port(port,baud)
     start = datetime.utcnow()
     facc, faud, fall = open_files(pre,start)
-    unp_s, num_bytes = packet_format(header_len, num_temp, num_accel, num_audio)
+    unp_s, num_bytes = packet_format(header_len+count_len, num_temp, num_accel, num_audio)
     
     wait_untill_start(ser)
     ser.read(num_bytes-(header_len*2))
@@ -78,11 +79,11 @@ def main(pre,port,baud):
             unp = struct.unpack(unp_s, line)
             fall.write(','.join([str(x) for x in unp]) + "\n")
             if unp[0] == 0xAA55 and unp[1] == 0xAA55:
-                facc.write(','.join([str(x) for x in unp[:(header_len+num_accel)]]) + "\n")
-                faud.write('\n'.join([str(x) for x in unp[(header_len+num_accel+num_temp):]]) + "\n")
+                facc.write(','.join([str(x) for x in unp[:(header_len+count_len+num_accel)]]) + "\n")
+                faud.write('\n'.join([str(x) for x in unp[(header_len+count_len+num_accel+num_temp):]]) + "\n")
             else:
                 fall.write("Packet Error ")
-                facc.write('0'*(header_len+num_accel))
+                facc.write('0'*(header_len+count_len+num_accel))
                 faud.write('0'*num_audio)
                 wait_untill_start(ser)
                 
