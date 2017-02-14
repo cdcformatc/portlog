@@ -86,6 +86,7 @@ def main(pre,port,baud):
                 facc.write('0'*(header_len+count_len+num_accel))
                 faud.write('0'*num_audio)
                 wait_untill_start(ser)
+                ser.read(num_bytes-(header_len*2))
                 
     ser.close() # close port
     facc.close()
