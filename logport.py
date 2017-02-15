@@ -48,12 +48,12 @@ def wait_untill_start(ser):
             if y[0] == 0xAA and y[1] == 0x55 and y[2] == 0xAA:
                 break
                 
-def main(oiutpath,port,baud):
+def main(outpath,port,baud):
     header_len = 2
     count_len = 1
     num_temp = 1
     num_accel = 3
-    num_audio = 8
+    num_audio = 4
     line = ''
     
     ser = open_port(port,baud)
