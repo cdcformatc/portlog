@@ -57,7 +57,7 @@ def main(oiutpath,port,baud):
     line = ''
     
     ser = open_port(port,baud)
-    start = datetime.utcnow()
+    start = datetime.utcnow().replace(second=0, microsecond=0)
     facc, faud, fall = open_files(outpath,start)
     unp_s, num_bytes = packet_format(header_len+count_len, num_temp, num_accel, num_audio)
     
