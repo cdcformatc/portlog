@@ -17,14 +17,9 @@ def packet_format(header,temp,accel,audio):
     
 def open_files(outpath,time):
     time_s = time_format.format(time)
-        
-    fnacc = outpath + time_s + '_acc' + DATA_FILE_EXT
-    fnaud = outpath + time_s + '_aud' + DATA_FILE_EXT
     fnall = outpath + time_s + '_all' + DATA_FILE_EXT
-    facc = open(fnacc, "w")
-    faud = open(fnaud,"w")
     fall = open(fnall,"w")
-    return facc,faud,fall
+    return fall
     
 def open_port(port,baud):
     ser = None
@@ -58,7 +53,7 @@ def main(outpath,port,baud):
     
     ser = open_port(port,baud)
     start = datetime.utcnow().replace(second=0, microsecond=0)
-    facc, faud, fall = open_files(outpath,start)
+    fall = open_files(outpath,start)
     unp_s, num_bytes = packet_format(header_len+count_len, num_temp, num_accel, num_audio)
     
     wait_untill_start(ser)
@@ -68,30 +63,22 @@ def main(outpath,port,baud):
         dt = datetime.utcnow()
         if (dt - start).total_seconds() > 60:
             start = dt
-            facc.close()
             fall.close()
-            faud.close()
-            facc,faud,fall = open_files(outpath,start)
+            fall = open_files(outpath,start)
             
         line = ser.read(num_bytes)
         if line != "":
             unp = struct.unpack(unp_s, line)
             fall.write(','.join([str(x) for x in unp]) + "\n")
             if unp[0] == 0xAA55 and unp[1] == 0xAA55:
-                facc.write(','.join([str(x) for x in unp[:(header_len+count_len+num_accel)]]) + "\n")
-                faud.write('\n'.join([str(x) for x in unp[(header_len+count_len+num_accel+num_temp):]]) + "\n")
+                pass
             else:
                 fall.write("Packet Error\n")
-                facc.write('0,'*(header_len+count_len+num_accel))
-                facc.write('\n')
-                faud.write('0\n'*num_audio)
                 wait_untill_start(ser)
                 ser.read(num_bytes-(header_len*2))
                 
     ser.close() # close port
-    facc.close()
     fall.close()
-    faud.close()
     
 if __name__== '__main__':
     outpath = sys.argv[1]
