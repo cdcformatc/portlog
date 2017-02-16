@@ -3,8 +3,8 @@ import sys
 from datetime import datetime
 import struct
 import time
+import gzip
 
-DATA_FILE_EXT = '.txt'
 time_format = "{0:%Y}{0:%m}{0:%d}{0:%H}{0:%M}"
     
 def packet_format(header,temp,accel,audio):
@@ -17,8 +17,9 @@ def packet_format(header,temp,accel,audio):
     
 def open_files(outpath,time):
     time_s = time_format.format(time)
-    fnall = outpath + time_s + '_all' + DATA_FILE_EXT
-    fall = open(fnall,"w")
+    fnall = outpath + time_s + '_all.txt.gz'
+    
+    fall = gzip.open(fnall, 'wb')
     return fall
     
 def open_port(port,baud):
